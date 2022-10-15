@@ -1,7 +1,7 @@
 <script setup>
-import day01 from "@/example/day01.vue"
+import day02 from "@/example/day02.vue"
 </script>
 
 <template>
-  <day01 />
+  <day02 />
 </template>
