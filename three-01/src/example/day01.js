@@ -8,8 +8,6 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader"
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader"
 
-
-
 const scene = new THREE.Scene()
 // 初始化相机,透视相机，
 const camera = new THREE.PerspectiveCamera(
