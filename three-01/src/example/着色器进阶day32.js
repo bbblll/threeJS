@@ -49,8 +49,8 @@ export function init() {
         renderer.domElement
     )
     const controller = new OrbitControls(camera, renderer.domElement)
-    // const axes = new THREE.AxesHelper(10)
-    // scene.add(axes)
+    const axes = new THREE.AxesHelper(10)
+    scene.add(axes)
     function anime() {
         let time = clock.getElapsedTime()
         planeMaterial.uniforms.utime.value = time

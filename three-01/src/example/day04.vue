@@ -19,5 +19,6 @@ onMounted(() => {
 #scene {
     position: absolute;
     inset: 0;
+    background-color: rgb(65, 24, 104);
 }
 </style>
