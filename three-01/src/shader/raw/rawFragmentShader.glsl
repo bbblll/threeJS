@@ -2,6 +2,7 @@ precision lowp float;
 varying vec2 vUv;
 
 uniform float utime;
+uniform float scale;
 
 float random (vec2 st) {
     return fract(sin(dot(st.xy,
@@ -16,86 +17,69 @@ vec2 rotate(vec2 uv,float rotation,vec2 mid){
    );
 }
 
-void main()
-{
-   // 绘制圆
-   // float strenth = step(0.2,distance(vUv,vec2(0.5,0.5)));
-   // gl_FragColor = vec4(strenth,strenth,strenth,1);
-    // 圆环（相乘）
-   // float strenth = step(0.2,distance(vUv,vec2(0.5,0.5)));
-   // strenth*=1.0-step(0.3,distance(vUv,vec2(0.5,0.5)));
-   // gl_FragColor = vec4(strenth,strenth,strenth,1);
-
-   // 圆环（绝对值）
-   // float strenth = step(0.01,abs(distance(vUv,vec2(0.5,0.5))-0.3));
-   // gl_FragColor = vec4(strenth,strenth,strenth,1);
-
-   // 圆环（绝对值）
-   // float strenth = step(0.01,
-   // mod(abs(distance(vUv,vec2(0.5,0.5))-0.3),0.1)
-   // );
-   // gl_FragColor = vec4(strenth,strenth,strenth,1);
-
-   // // 诡异图案
-   // vec2 new_uv = vec2(
-   //    vUv.x,
-   //    vUv.y + sin(vUv.x*100.0)*0.1
-   // );
-   // float strenth = step(0.01,abs(distance(new_uv,vec2(0.5,0.5))-0.3));
-   // gl_FragColor = vec4(strenth,strenth,strenth,1);
-
-   // 诡异图案
-   // vec2 new_uv = vec2(
-   //    vUv.x + sin(vUv.y*100.0)*0.1,
-   //    vUv.y + sin(vUv.x*100.0)*0.1
-   // );
-   // float strenth = step(0.01,abs(distance(new_uv,vec2(0.5,0.5))-0.3));
-   // gl_FragColor = vec4(strenth,strenth,strenth,1);
-
-   // 反三角函数，设置角度渐变
-   // float strenth = atan(vUv.y, vUv.x);
-   // gl_FragColor = vec4(strenth,strenth,strenth,1);
-
-   // 反三角函数，设置角度渐变，改编中中心
-   // float strenth = atan(vUv.y-0.5, vUv.x-0.5);
-   // gl_FragColor = vec4(strenth,strenth,strenth,1);
-
-   // 设置角度渐变，全角度渐变,函数会根据输入，得到(-pI,pI)之间的值
-   // float strenth = (atan(vUv.y-0.5, vUv.x-0.5)+3.14)/6.28;
-   // gl_FragColor = vec4(strenth,strenth,strenth,1);
-
-   // 雷达
-   // float alpha = step(0.6,1.0-distance(vUv,vec2(0.5,0.5)));
-   // float strenth = alpha*(0.8*(atan(vUv.y-0.5, vUv.x-0.5)+3.14)/6.28);
-   // gl_FragColor = vec4(strenth,strenth,strenth,alpha);
-
-   // 雷达旋转
-   // vec2 new_uv = rotate(vUv,utime*5.0,vec2(0.5));
-   // float alpha = step(0.6,1.0-distance(new_uv,vec2(0.5,0.5)));
-   // float strenth = alpha*(0.8*(atan(new_uv.y-0.5, new_uv.x-0.5)+3.14)/6.28);
-   // gl_FragColor = vec4(strenth,strenth,strenth,alpha);
-
-   // 万花筒
-   // float alpha = step(0.6,1.0-distance(vUv,vec2(0.5,0.5)));
-   // float strenth = alpha*(0.8*(atan(vUv.y-0.5, vUv.x-0.5)+3.14)/6.28);
-   // strenth = mod(strenth*30.0,0.8);
-   // gl_FragColor = vec4(strenth,strenth,strenth,alpha);
-
-   // 万花筒sin
-   float alpha = step(0.6,1.0-distance(vUv,vec2(0.5,0.5)));
-   float strenth = alpha*(0.8*(atan(vUv.y-0.5, vUv.x-0.5)+3.14)/6.28);
-   strenth = sin(strenth*100.0);
-   gl_FragColor = vec4(strenth,strenth,strenth,alpha);
+vec2 random2(vec2 st){
+    st = vec2( dot(st,vec2(127.1,311.7)),
+              dot(st,vec2(269.5,183.3)) );
+    return -1.0 + 2.0*fract(sin(st)*43758.5453123);
 }
 
-// 绘制圆
-// 圆环（相乘）
-// 圆环（绝对值）
-// 多重圆环
-// 诡异图案
-// 反三角函数，设置角度渐变，改编中中心
-// 设置角度渐变，全角度渐变
-// 雷达
-// 雷达旋转（旋转uv）
-// 万花筒，
-// 万花筒sin
+float noise(vec2 st) {
+    vec2 i = floor(st);
+    vec2 f = fract(st);
+
+    vec2 u = f*f*(3.0-2.0*f);
+
+    return mix( mix( dot( random2(i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),
+                     dot( random2(i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),
+                mix( dot( random2(i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ),
+                     dot( random2(i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);
+}
+
+void main()
+{
+   // 噪声函数
+   // float strenth = noise(vUv*50.0);
+   // gl_FragColor = vec4(strenth,strenth,strenth,1.0);
+
+   // 移动
+   // float strenth =abs(noise(vUv*10.0 + utime)*30.0 );
+   // gl_FragColor = vec4(strenth,strenth,strenth,1.0);
+
+   // 取绝对值
+   // float strenth =abs(noise(vUv*10.0)*scale );
+   // gl_FragColor = vec4(strenth,strenth,strenth,1.0);
+
+   // 发光路径，取反
+   // float strenth =1.0-abs(noise(vUv*30.0)*10.0 );
+   // gl_FragColor = vec4(strenth,strenth,strenth,1.0);
+
+   // sin（水波纹）
+   // float strenth =sin(noise(vUv*10.0)*20.0+utime*5.0 );
+   // gl_FragColor = vec4(strenth,strenth,strenth,1.0);
+
+   // 颜色混合（黑，黄）
+   // float strenth =step(0.95,1.0-abs(noise(vUv*20.0)*10.0 ));
+
+   // vec3 color_1 = vec3(0.0, 0.0, 0.0);
+   // vec3 color_2 = vec3(1.0, 1.0, 0.0);
+   // vec3 mix_color = mix(color_1,color_2,strenth);
+
+   // gl_FragColor = vec4(mix_color,1.0);
+
+   // 混合颜色（uv，白）
+   float strenth = step(0.5,1.0-abs(noise(vUv*20.0)*10.0 ));
+
+   vec3 color_1 = vec3(0.7,0.7, 0.7);
+   vec3 color_2 = vec3(1.0,vUv);
+   vec3 mix_color = mix(color_1,color_2,strenth);
+
+   gl_FragColor = vec4(mix_color,1.0);
+}
+
+// 噪声函数
+// 取绝对值
+// 发光路径，取反
+// sin
+// 加时间（水波纹）
+// 颜色混合（黑，黄）
+// 混合颜色（uv，白）

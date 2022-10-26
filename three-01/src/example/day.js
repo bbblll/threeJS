@@ -3,7 +3,8 @@ import * as THREE from "three"
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import rawFragmentShader from "@/shader/raw/rawFragmentShader.glsl?raw"
 import rawVertexShader from "@/shader/raw/rawVertexShader.glsl?raw"
-
+import * as dat from 'dat.gui';
+const gui = new dat.GUI();
 // 深入学习glsl
 
 // 带蓝色的彩色画布
@@ -30,7 +31,7 @@ camera.lookAt(-1, -1, -1)
 // 场景
 const scene = new THREE.Scene()
 const renderer = new THREE.WebGLRenderer({
-    logarithmicDepthBuffer: true,
+    // logarithmicDepthBuffer: true,
     antialias: true,
     alpha: true
 })
@@ -70,12 +71,16 @@ const planeMaterial = new THREE.RawShaderMaterial({
     uniforms: {
         utime: {
             value: 0.0
+        },
+        scale: {
+            value: 0.0
         }
     },
     vertexShader: rawVertexShader,
     fragmentShader: rawFragmentShader,
     side: THREE.DoubleSide,
 });
+gui.add(planeMaterial.uniforms.scale, "value", 0.0, 20.0, 0.01)
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 // console.log(plane)
 plane.receiveShadow = true
