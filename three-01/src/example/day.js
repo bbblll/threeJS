@@ -1,23 +1,19 @@
 import * as THREE from "three"
-// import * as CANNON from "cannon-es"
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import rawFragmentShader from "@/shader/raw/rawFragmentShader.glsl?raw"
-import rawVertexShader from "@/shader/raw/rawVertexShader.glsl?raw"
-import * as dat from 'dat.gui';
-const gui = new dat.GUI();
-// 深入学习glsl
+// import * as dat from 'dat.gui';
+// import { gsap } from "gsap";
+// const gui = new dat.GUI();
+import { Water } from 'three/addons/objects/Water2.js';
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 
-// 带蓝色的彩色画布
-// x轴黑白渐变
-// y轴黑白渐变
-// 去摸，mod，设计百叶窗
-// step，超过0，不超过1.0（斑马条纹）
-// x条纹，y条纹。条纹相加
-// 图形跑起来
-// T字
-// 对称渐变
-
-
+// 加载RGBloader（hdr文件）
+// GLTFloader（模型文件）
+// 场景背景（异步加载）
+// 设置纹理，柱型环绕
+// 加载浴缸
+// 将第二个物体的集合体给water
+// 添加直线光
 
 
 const camera = new THREE.PerspectiveCamera(
@@ -26,8 +22,8 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     500
 );
-camera.position.set(20, 20, 20)
-camera.lookAt(-1, -1, -1)
+camera.position.set(0, 5, 5)
+// camera.lookAt(1, 1, 1)
 // 场景
 const scene = new THREE.Scene()
 const renderer = new THREE.WebGLRenderer({
@@ -37,25 +33,26 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.shadowMap.enabled = true
 
+const rgbLoader = new RGBELoader()
+rgbLoader.loadAsync("src/textures/hdr/002.hdr").then((texture) => {
+    texture.mapping = THREE.CubeReflectionMapping
+    scene.background = texture
+    scene.environment = texture
+})
 
 const clock = new THREE.Clock()
-
-// const textureLoader = new THREE.TextureLoader()
-// const texture = textureLoader.load("src/image/8.png")
 //初始化函数
 export function init() {
-
-
     document.querySelector("#scene").appendChild(
         renderer.domElement
     )
     const controller = new OrbitControls(camera, renderer.domElement)
-    // const axes = new THREE.AxesHelper(10)
-    // scene.add(axes)
+
+    const axes = new THREE.AxesHelper(10)
+    scene.add(axes)
     function anime() {
-        let time = clock.getElapsedTime()
-        planeMaterial.uniforms.utime.value = time
         requestAnimationFrame(anime)
+        controller.update()
         camera.aspect = window.innerWidth / window.innerHeight
         camera.updateProjectionMatrix()
         renderer.setSize(window.innerWidth, window.innerHeight)
@@ -66,25 +63,32 @@ export function init() {
 
 
 
-const planeGeometry = new THREE.PlaneGeometry(30, 30);
-const planeMaterial = new THREE.RawShaderMaterial({
-    uniforms: {
-        utime: {
-            value: 0.0
-        },
-        scale: {
-            value: 0.0
-        }
-    },
-    vertexShader: rawVertexShader,
-    fragmentShader: rawFragmentShader,
-    side: THREE.DoubleSide,
-});
-gui.add(planeMaterial.uniforms.scale, "value", 0.0, 20.0, 0.01)
-const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-// console.log(plane)
-plane.receiveShadow = true
-// plane.rotation.x = -Math.PI / 2
-scene.add(plane);
+const gltfLoader = new GLTFLoader()
+gltfLoader.load("src/model/yugang.glb", (gltf) => {
+    // console.log(gltf.scene.children[0])
+    const mesh1 = gltf.scene.children[1]
+    const mesh0 = gltf.scene.children[0]
+    mesh0.material.side = THREE.DoubleSide
+    mesh0.position.y = 0.5
+    scene.add(mesh0)
+
+    const waterGeometry = mesh1.geometry
+    const water = new Water(waterGeometry, {
+        color: "#ffffff",//颜色
+        scale: 3.0,//水纹大小
+        flowDirection: new THREE.Vector2(0.0, 1),//水流方向
+        // 细腻度
+        textureWidth: 1024,
+        textureHeight: 1024
+    });
+    scene.add(water)
+
+})
 
 
+// 加直射光
+const light = new THREE.DirectionalLight(
+    new THREE.Color("#ffffff"),
+    0.5
+)
+scene.add(light)
