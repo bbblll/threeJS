@@ -6,7 +6,11 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import vertexShader from "@/shader/basic point/basicVertexShader.glsl?raw"
 import fragmentShader from "@/shader/basic point/basicFragmentShader.glsl?raw"
 
-// 着色器设置银河渐变颜色
+// 溜溜网古建筑模型
+// 创建烟花类
+// 点击创建烟花函数
+// hsl设置颜色，360，100%，80%（颜色，纯度，亮度）
+// 设置随机位置
 
 
 

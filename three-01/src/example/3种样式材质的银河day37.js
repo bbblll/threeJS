@@ -6,7 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import vertexShader from "@/shader/basic point/basicVertexShader.glsl?raw"
 import fragmentShader from "@/shader/basic point/basicFragmentShader.glsl?raw"
 
-// 着色器设置银河渐变颜色
+// 设置3个点材质的银河
 
 
 
@@ -37,12 +37,9 @@ export function init() {
     )
     const controller = new OrbitControls(camera, renderer.domElement)
 
-    addSphere()
     const axes = new THREE.AxesHelper(10)
     scene.add(axes)
     function anime() {
-        let time = clock.getElapsedTime()
-        pointsMaterial.uniforms.utime.value = time
         requestAnimationFrame(anime)
         controller.update()
         camera.aspect = window.innerWidth / window.innerHeight
@@ -66,24 +63,22 @@ export function init() {
 // scene.add(Point)
 
 const parameter = {
-    count: 200,
+    count: 10000,
     size: 0.3,
     radius: 13,
-    branch: 4,
+    branch: 3,
     color: "#ff6030",
     Scale: 0.1,
     endColor: "#1b3984"
 }
 
-let pointsMaterial
+
 function addSphere() {
     const bufferGeometry = new THREE.BufferGeometry();
 
     const position = new Float32Array(parameter.count * 3);
     const colors = new Float32Array(parameter.count * 3);
-    const textureIndex = new Float32Array(parameter.count);
-    const aScale = new Float32Array(parameter.count);
-
+    const textureIndex = new Float32Array(parameter.count * 3);
 
     // const colors = new Float32Array(count * 3);
     const centerColor = new THREE.Color(parameter.color)
@@ -109,23 +104,21 @@ function addSphere() {
         colors[current] = starColor.r
         colors[current + 1] = starColor.g
         colors[current + 2] = starColor.b
-        textureIndex[i] = i % 3 - 1;
-        aScale[i] = Math.random() * 20;
+        textureIndex[current] = (current / 3) % 3;
+
     }
 
     // itemSize = 3 因为每个顶点都是一个三元组。
     bufferGeometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
     bufferGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     bufferGeometry.setAttribute('textureIndex', new THREE.BufferAttribute(textureIndex, 1));
-    bufferGeometry.setAttribute('aScale', new THREE.BufferAttribute(aScale, 1));
-
 
 
     let texture = loader.load(`src/textures/particles/10.png`)
     let texture1 = loader.load(`src/textures/particles/9.png`)
     let texture2 = loader.load(`src/textures/particles/11.png`)
 
-    pointsMaterial = new THREE.ShaderMaterial({
+    const pointsMaterial = new THREE.ShaderMaterial({
         uniforms: {
             utexture: {
                 value: texture
@@ -135,10 +128,7 @@ function addSphere() {
             },
             utexture2: {
                 value: texture2
-            },
-            utime: {
-                value: 0.0
-            },
+            }
         },
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
@@ -152,4 +142,4 @@ function addSphere() {
     scene.add(points)
     return points
 }
-
+addSphere()
